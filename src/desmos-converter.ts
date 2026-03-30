@@ -5,12 +5,12 @@ export interface Point {
 
 export interface Segment {
     type: 'L' | 'Q'; // Line or Quadratic
-    x3: number;
-    y3: number;
-    x4: number;
-    y4: number;
-    x5?: number;
-    y5?: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+    x3?: number;
+    y3?: number;
 }
 
 export function toDesmosCoords(x: number, y: number, width: number, height: number): Point {
@@ -43,15 +43,15 @@ export function generateDesmosEquations(tracedData: any, width: number, height: 
             if (!path || !path.segments) continue;
 
             for (let k=0; k < path.segments.length; k++) {
-                const segment = path.segments[k];
+                const segment = path.segments[k] as Segment;
 
-                const startX = segment.x3;
-                const startY = segment.y3;
+                const startX = segment.x1;
+                const startY = segment.y1;
 
                 const start = toDesmosCoords(startX, startY, width, height);
 
                 if (segment.type === 'L') {
-                    const end = toDesmosCoords(segment.x4, segment.y4, width, height);
+                    const end = toDesmosCoords(segment.x2, segment.y2, width, height);
 
                     const dx = end.x - start.x;
                     const dy = end.y - start.y;
@@ -71,10 +71,10 @@ export function generateDesmosEquations(tracedData: any, width: number, height: 
                         equations.push(eq);
                     }
                 } else if (segment.type === 'Q') {
-                    if (segment.x5 === undefined || segment.y5 === undefined) continue;
+                    if (segment.x3 === undefined || segment.y3 === undefined) continue;
 
-                    const control = toDesmosCoords(segment.x4, segment.y4, width, height);
-                    const end = toDesmosCoords(segment.x5, segment.y5, width, height);
+                    const control = toDesmosCoords(segment.x2, segment.y2, width, height);
+                    const end = toDesmosCoords(segment.x3, segment.y3, width, height);
 
                     const xEq = `(1-t)^2*${formatNum(start.x)} + 2(1-t)t*${formatNum(control.x)} + t^2*${formatNum(end.x)}`;
                     const yEq = `(1-t)^2*${formatNum(start.y)} + 2(1-t)t*${formatNum(control.y)} + t^2*${formatNum(end.y)}`;
